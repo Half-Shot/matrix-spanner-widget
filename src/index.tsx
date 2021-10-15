@@ -103,6 +103,7 @@ if (root) {
     api.requestCapabilityToReceiveState("uk.half-shot.spanner", spannerId);
     api.requestCapabilityToSendState("uk.half-shot.spanner", spannerId);
     if (sendSpannerMsg) {
+        api.requestCapabilityToSendEvent("m.room.message")
         api.requestCapabilityToSendMessage("m.emote");
     }
     // Before doing anything else, request capabilities:
