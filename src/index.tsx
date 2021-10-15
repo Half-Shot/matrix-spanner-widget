@@ -33,7 +33,7 @@ export function App(props: IProps) {
         props.widget.sendStateEvent(StateEventType, props.spannerId, { });
         if (props.sendSpannerMsg) {
             props.widget.sendRoomEvent("m.room.message", {
-                "type": "m.emote",
+                "msgtype": "m.emote",
                 "body": `drops the ${props.spannerName} spanner`,
             })
         }
