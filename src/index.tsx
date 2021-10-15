@@ -43,7 +43,7 @@ export function App(props: IProps) {
             return;
         }
         setHasSpanner(null);
-    }, [hasSpanner]);
+    }, [setHasSpanner]);
 
     if (hasSpanner === "loading") {
         props.widget.on(`action:${WidgetApiToWidgetAction.SendEvent}`, (event) => {
@@ -58,9 +58,6 @@ export function App(props: IProps) {
             console.log("Err fetching state", err);
         });
         setHasSpanner(null);
-    }
-
-    if (hasSpanner === "loading") {
         return <p> Loading </p>;
     }
 
