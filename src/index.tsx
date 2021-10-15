@@ -14,8 +14,8 @@ interface IProps {
 const StateEventType = "uk.half-shot.spanner";
 
 // This is a bit cheeky, but the widget API doesn't allow us to fetch profiles or the user's HS.
-const ProfileLookupURL = "http://localhost:8008/_matrix/client/r0/profile/"
-const ThumbnailURL = "http://localhost:8008/_matrix/media/r0/thumbnail/"
+const ProfileLookupURL = "https://matrix.org/_matrix/client/r0/profile/"
+const ThumbnailURL = "https://matrix.org/_matrix/media/r0/thumbnail/"
 
 export function App(props: IProps) {
     const [hasSpanner, setHasSpanner] = useState<{displayname: string, avatar?: string}|"loading"|null>("loading");
