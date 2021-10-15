@@ -24,7 +24,7 @@ export function App(props: IProps) {
         props.widget.sendStateEvent(StateEventType, props.spannerId, { active: true });
         if (props.sendSpannerMsg) {
             props.widget.sendRoomEvent("m.room.message", {
-                "type": "m.emote",
+                "msgtype": "m.emote",
                 "body": `takes the ${props.spannerName} spanner`,
             })
         }
@@ -103,7 +103,6 @@ if (root) {
     api.requestCapabilityToReceiveState("uk.half-shot.spanner", spannerId);
     api.requestCapabilityToSendState("uk.half-shot.spanner", spannerId);
     if (sendSpannerMsg) {
-        api.requestCapabilityToSendEvent("m.room.message")
         api.requestCapabilityToSendMessage("m.emote");
     }
     // Before doing anything else, request capabilities:
