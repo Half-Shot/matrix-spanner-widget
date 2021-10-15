@@ -5,3 +5,19 @@
 body {
   font-family: 'Open Sans';
 }
+
+main {
+  padding: 5vh 5vw;
+}
+
+main {
+  text-align: center;
+}
+
+main > button {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 25vw;
+  border-radius: 5px;
+}

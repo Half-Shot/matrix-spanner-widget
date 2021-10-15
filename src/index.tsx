@@ -8,12 +8,17 @@ import { MatrixCapabilities, WidgetApi, WidgetApiFromWidgetAction, WidgetApiToWi
 interface IProps {
     widget: WidgetApi;
     spannerId: string;
+    spannerName: string;
 }
 
 const StateEventType = "uk.half-shot.spanner";
 
+// This is a bit cheeky, but the widget API doesn't allow us to fetch profiles or the user's HS.
+const ProfileLookupURL = "http://localhost:8008/_matrix/client/r0/profile/"
+const ThumbnailURL = "http://localhost:8008/_matrix/media/r0/thumbnail/"
+
 export function App(props: IProps) {
-    const [hasSpanner, setHasSpanner] = useState<string|null>("loading");
+    const [hasSpanner, setHasSpanner] = useState<{displayname: string, avatar?: string}|"loading"|null>("loading");
     const takeSpanner = useCallback(() => {
         props.widget.sendStateEvent(StateEventType, props.spannerId, { active: true });
     }, []);
@@ -23,21 +28,30 @@ export function App(props: IProps) {
 
     const processSpannerState = useCallback((event: any) => {
         if (event?.content.active) {
-            setHasSpanner(event.sender);
+            fetch(new Request(`${ProfileLookupURL}${encodeURIComponent(event.sender)}`)).then(res => {
+                return res.json();
+            }).then((res) => {
+                let avatar = undefined;
+                if (res.avatar_url) {
+                    avatar = `${ThumbnailURL}${res.avatar_url.replace("mxc://", "")}?width=48&height=48&method=scale`;
+                }
+                setHasSpanner({displayname: res.displayname || event.sender, avatar});
+            }).catch((err) => {
+                // No profile, just set the sender.
+                setHasSpanner({displayname: event.sender});
+            });
             return;
         }
         setHasSpanner(null);
     }, [hasSpanner]);
 
     if (hasSpanner === "loading") {
-
         props.widget.on(`action:${WidgetApiToWidgetAction.SendEvent}`, (event) => {
             const { data } = event.detail;
             processSpannerState(data);
         });
     
         props.widget.readStateEvents(StateEventType, 1, props.spannerId).then(stateEvents => {
-            console.log("STATE:", stateEvents);
             const [event] = stateEvents as any[];
             processSpannerState(event);
         }).catch((err) => {
@@ -46,10 +60,15 @@ export function App(props: IProps) {
         setHasSpanner(null);
     }
 
+    if (hasSpanner === "loading") {
+        return <p> Loading </p>;
+    }
+
     if (hasSpanner) {
         return <>
             <p>
-                {hasSpanner} has the Spanner.
+                {hasSpanner.avatar && <img width="48" src={hasSpanner.avatar}/>}
+                {hasSpanner.displayname} has {props.spannerName}.
             </p>
             <button onClick={dropSpanner}>Drop it</button>
         </>;
@@ -57,7 +76,7 @@ export function App(props: IProps) {
 
     return <>
         <p>
-            Nobody has the Spanner.
+            Nobody has {props.spannerName}.
         </p>
         <button onClick={takeSpanner}>Take it</button>
     </>;
@@ -67,6 +86,7 @@ const root = document.getElementsByTagName('main')[0];
 if (root) {
     const queryParams = new URLSearchParams(window.location.search);
     const spannerId = queryParams.get("spannerId") || "default";
+    const spannerName = queryParams.get("spannerName") || "the Spanner";
 
     const api = new WidgetApi(queryParams.get("widgetId") || undefined);
     api.requestCapabilityToReceiveState("uk.half-shot.spanner", spannerId);
@@ -74,8 +94,10 @@ if (root) {
     // Before doing anything else, request capabilities:
     api.start();
 
-    render(<App widget={api} spannerId={spannerId} />, root);
-    api.sendContentLoaded();
+    api.on("ready", () => {
+        render(<App widget={api} spannerId={spannerId} spannerName={spannerName} />, root);
+    });
+
 } else {
     console.error("Could not find the root element");
 }
