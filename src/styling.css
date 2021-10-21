@@ -6,6 +6,13 @@ body {
   font-family: 'Open Sans';
 }
 
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #15191e;
+    color: white;
+  }
+}
+
 main {
   padding: 5vh 5vw;
 }
@@ -15,9 +22,11 @@ main {
 }
 
 main > button {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  width: 25vw;
-  border-radius: 5px;
+  /* inspired by mx_AccessibleButton_kind_primary */
+  color: white;
+  background-color: #0dbd8b;
+  font-weight: 600;
+  padding: 7px 18px;
+  text-align: center;
+  border-radius: 8px;
 }
