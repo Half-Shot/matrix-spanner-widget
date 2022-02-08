@@ -20,39 +20,36 @@ const ThumbnailURL = "https://matrix.org/_matrix/media/r0/thumbnail/";
 
 export function App(props: IProps) {
     const [error, setError] = useState<string|null>(null);
+    const [inProgress, setInProgress] = useState<boolean>(false);
     const [hasSpanner, setHasSpanner] = useState<{displayname: string, avatar?: string}|"loading"|null>("loading");
+
+    const alterSpanner = (action: "take"|"drop") => {
+        setError(null);
+        setInProgress(true);
+        props.widget.sendStateEvent(StateEventType, props.spannerId, action === "take" ? { active: true }: {}).then(() => {
+            if (props.sendSpannerMsg) {
+                // Don't await / error
+                props.widget.sendRoomEvent("m.room.message", {
+                    "msgtype": "m.emote",
+                    "body": `${action}s the ${props.spannerName} spanner`,
+                })
+            }
+        }).catch(ex => {
+            console.error(`Failed to ${action} spanner`, ex);
+            setError(`Failed to ${action} spanner`);
+        });
+    }
+
     const takeSpanner = useCallback(() => {
-        setError(null);
-        props.widget.sendStateEvent(StateEventType, props.spannerId, { active: true }).then(() => {
-            if (props.sendSpannerMsg) {
-                // Don't await / error
-                props.widget.sendRoomEvent("m.room.message", {
-                    "msgtype": "m.emote",
-                    "body": `takes the ${props.spannerName} spanner`,
-                })
-            }
-        }).catch(ex => {
-            console.error('Failed to take spanner', ex);
-            setError('Failed to take spanner');
-        });
-    }, [setError]);
+        alterSpanner("take");
+    }, [setError, setInProgress]);
+
     const dropSpanner = useCallback(() => {
-        setError(null);
-        props.widget.sendStateEvent(StateEventType, props.spannerId, { }).then(() => {
-            if (props.sendSpannerMsg) {
-                // Don't await / error
-                props.widget.sendRoomEvent("m.room.message", {
-                    "msgtype": "m.emote",
-                    "body": `drops the ${props.spannerName} spanner`,
-                })
-            }
-        }).catch(ex => {
-            console.error('Failed to drop spanner', ex);
-            setError('Failed to drop spanner');
-        });
-    }, [setError]);
+        alterSpanner("drop");
+    }, [setError, setInProgress]);
 
     const processSpannerState = useCallback((event: any) => {
+        setInProgress(false);
         if (event?.content.active) {
             fetch(new Request(`${ProfileLookupURL}${encodeURIComponent(event.sender)}`)).then(res => {
                 return res.json();
@@ -62,14 +59,14 @@ export function App(props: IProps) {
                     avatar = `${ThumbnailURL}${res.avatar_url.replace("mxc://", "")}?width=48&height=48&method=scale`;
                 }
                 setHasSpanner({displayname: res.displayname || event.sender, avatar});
-            }).catch((err) => {
+            }).catch(() => {
                 // No profile, just set the sender.
                 setHasSpanner({displayname: event.sender});
             });
             return;
         }
         setHasSpanner(null);
-    }, [setHasSpanner]);
+    }, [setHasSpanner, setInProgress]);
 
     let content;
     if (hasSpanner === "loading") {
@@ -86,22 +83,26 @@ export function App(props: IProps) {
             console.log("Err fetching state", err);
         });
         setHasSpanner(null);
+
         content = <p> Loading </p>;
     } else if (hasSpanner) {
         content =  <>
-            {error && <p className="error">Error: {error}</p> }
-            <p>
-                {hasSpanner.avatar && <img width="48" src={hasSpanner.avatar}/>}
-                {hasSpanner.displayname} has {props.spannerName}.
-            </p>
-            <button onClick={dropSpanner}>Drop it</button>
+            <section className={`profileWrapper taken`}>
+                {hasSpanner.avatar && <img className='avatar' width="48" src={hasSpanner.avatar}/>}
+                <div className="spannerText">
+                    {hasSpanner.displayname} has {props.spannerName}
+                </div>
+            </section>
+            <button onClick={dropSpanner} disabled={inProgress}>🫳 Drop</button>
         </>;
     } else {
-        content =  <>
-            <p>
+        content = <>
+            <section className={`profileWrapper dropped`}>
+            <div className="spannerText">
                 Nobody has {props.spannerName}.
-            </p>
-            <button onClick={takeSpanner}>Take it</button>
+            </div>
+            </section>
+            <button onClick={takeSpanner} disabled={inProgress}>🔧 Take</button>
         </>;
     }
 
@@ -111,27 +112,35 @@ export function App(props: IProps) {
     </>;
 }
 
-const root = document.getElementsByTagName('main')[0];
-if (root) {
-    const queryParams = new URLSearchParams(window.location.search);
-    const spannerId = queryParams.get("spannerId") || "default";
-    const spannerName = queryParams.get("spannerName") || "the Spanner";
-    const sendSpannerMsg = queryParams.get("sendSpannerMsg") === "true";
+export function startWidget (root: HTMLElement, queryParams: URLSearchParams, widgetApi?: WidgetApi) {
+    if (root) {
+        const spannerId = queryParams.get("spannerId") || "default";
+        const spannerName = queryParams.get("spannerName") || "the Spanner";
+        const sendSpannerMsg = queryParams.get("sendSpannerMsg") === "true";
+        const widgetId = queryParams.get("widgetId");
 
-    const api = new WidgetApi(queryParams.get("widgetId") || undefined);
-    api.requestCapabilityToReceiveState("uk.half-shot.spanner", spannerId);
-    api.requestCapabilityToSendState("uk.half-shot.spanner", spannerId);
-    if (sendSpannerMsg) {
-        api.requestCapabilityToSendEvent("m.room.message")
-        api.requestCapabilityToSendMessage("m.emote");
+        if (!widgetId) {
+            render(<p className="error">Error: Widget must be opened from within a compatible Matrix client.</p>, root);
+            return;
+        }
+
+    
+        const api = widgetApi || new WidgetApi(widgetId);
+        api.requestCapabilityToReceiveState("uk.half-shot.spanner", spannerId);
+        api.requestCapabilityToSendState("uk.half-shot.spanner", spannerId);
+        if (sendSpannerMsg) {
+            api.requestCapabilityToSendEvent("m.room.message")
+            api.requestCapabilityToSendMessage("m.emote");
+        }
+        // Before doing anything else, request capabilities:
+        api.start();
+
+        render(<p>Requesting capabilities...</p>, root);
+    
+        api.on("ready", () => {
+            render(<App widget={api} spannerId={spannerId} spannerName={spannerName} sendSpannerMsg={sendSpannerMsg} />, root);
+        });
+    } else {
+        console.error("Could not find the root element");
     }
-    // Before doing anything else, request capabilities:
-    api.start();
-
-    api.on("ready", () => {
-        render(<App widget={api} spannerId={spannerId} spannerName={spannerName} sendSpannerMsg={sendSpannerMsg} />, root);
-    });
-
-} else {
-    console.error("Could not find the root element");
 }
