@@ -15,29 +15,42 @@ interface IProps {
 const StateEventType = "uk.half-shot.spanner";
 
 // This is a bit cheeky, but the widget API doesn't allow us to fetch profiles or the user's HS.
-const ProfileLookupURL = "https://matrix.org/_matrix/client/r0/profile/"
-const ThumbnailURL = "https://matrix.org/_matrix/media/r0/thumbnail/"
+const ProfileLookupURL = "https://matrix.org/_matrix/client/r0/profile/";
+const ThumbnailURL = "https://matrix.org/_matrix/media/r0/thumbnail/";
 
 export function App(props: IProps) {
+    const [error, setError] = useState<string|null>(null);
     const [hasSpanner, setHasSpanner] = useState<{displayname: string, avatar?: string}|"loading"|null>("loading");
     const takeSpanner = useCallback(() => {
-        props.widget.sendStateEvent(StateEventType, props.spannerId, { active: true });
-        if (props.sendSpannerMsg) {
-            props.widget.sendRoomEvent("m.room.message", {
-                "msgtype": "m.emote",
-                "body": `takes the ${props.spannerName} spanner`,
-            })
-        }
-    }, []);
+        setError(null);
+        props.widget.sendStateEvent(StateEventType, props.spannerId, { active: true }).then(() => {
+            if (props.sendSpannerMsg) {
+                // Don't await / error
+                props.widget.sendRoomEvent("m.room.message", {
+                    "msgtype": "m.emote",
+                    "body": `takes the ${props.spannerName} spanner`,
+                })
+            }
+        }).catch(ex => {
+            console.error('Failed to take spanner', ex);
+            setError('Failed to take spanner');
+        });
+    }, [setError]);
     const dropSpanner = useCallback(() => {
-        props.widget.sendStateEvent(StateEventType, props.spannerId, { });
-        if (props.sendSpannerMsg) {
-            props.widget.sendRoomEvent("m.room.message", {
-                "msgtype": "m.emote",
-                "body": `drops the ${props.spannerName} spanner`,
-            })
-        }
-    }, []);
+        setError(null);
+        props.widget.sendStateEvent(StateEventType, props.spannerId, { }).then(() => {
+            if (props.sendSpannerMsg) {
+                // Don't await / error
+                props.widget.sendRoomEvent("m.room.message", {
+                    "msgtype": "m.emote",
+                    "body": `drops the ${props.spannerName} spanner`,
+                })
+            }
+        }).catch(ex => {
+            console.error('Failed to drop spanner', ex);
+            setError('Failed to drop spanner');
+        });
+    }, [setError]);
 
     const processSpannerState = useCallback((event: any) => {
         if (event?.content.active) {
@@ -58,6 +71,7 @@ export function App(props: IProps) {
         setHasSpanner(null);
     }, [setHasSpanner]);
 
+    let content;
     if (hasSpanner === "loading") {
         props.widget.on(`action:${WidgetApiToWidgetAction.SendEvent}`, (event) => {
             event.preventDefault();
@@ -72,24 +86,28 @@ export function App(props: IProps) {
             console.log("Err fetching state", err);
         });
         setHasSpanner(null);
-        return <p> Loading </p>;
-    }
-
-    if (hasSpanner) {
-        return <>
+        content = <p> Loading </p>;
+    } else if (hasSpanner) {
+        content =  <>
+            {error && <p className="error">Error: {error}</p> }
             <p>
                 {hasSpanner.avatar && <img width="48" src={hasSpanner.avatar}/>}
                 {hasSpanner.displayname} has {props.spannerName}.
             </p>
             <button onClick={dropSpanner}>Drop it</button>
         </>;
+    } else {
+        content =  <>
+            <p>
+                Nobody has {props.spannerName}.
+            </p>
+            <button onClick={takeSpanner}>Take it</button>
+        </>;
     }
 
     return <>
-        <p>
-            Nobody has {props.spannerName}.
-        </p>
-        <button onClick={takeSpanner}>Take it</button>
+        {error && <p className="error">Error: {error}</p> }
+        {content}
     </>;
 }
 

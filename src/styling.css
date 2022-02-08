@@ -30,3 +30,7 @@ main > button {
   text-align: center;
   border-radius: 8px;
 }
+
+.error {
+  color: red;
+}
