@@ -60,6 +60,7 @@ export function App(props: IProps) {
 
     if (hasSpanner === "loading") {
         props.widget.on(`action:${WidgetApiToWidgetAction.SendEvent}`, (event) => {
+            event.preventDefault();
             const { data } = event.detail;
             processSpannerState(data);
         });
