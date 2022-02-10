@@ -28,6 +28,11 @@ main > button {
   border-radius: 8px;
 }
 
+main > button:hover {
+  color: white;
+  background-color: #0dbd8b;
+}
+
 main > button:disabled {
   background: var(--button-hover-back-color);
   border-color: var(--button-hover-border-color);
