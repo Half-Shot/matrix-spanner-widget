@@ -1,7 +1,7 @@
 import { h, render, Fragment } from 'preact';
 import 'preact/devtools';
 import { useCallback, useState } from 'preact/hooks';
-import { MatrixCapabilities, WidgetApi, WidgetApiFromWidgetAction, WidgetApiToWidgetAction } from "matrix-widget-api";
+import { MatrixCapabilities, WidgetApi, WidgetApiFromWidgetAction, WidgetApiToWidgetAction, IWidgetApiRequestEmptyData } from "matrix-widget-api";
 // Avoids snowpack crash
 // import "@fontsource/open-sans/files/open-sans-latin-400-normal.woff2";
 
@@ -19,6 +19,7 @@ const ProfileLookupURL = "https://matrix.org/_matrix/client/r0/profile/";
 const ThumbnailURL = "https://matrix.org/_matrix/media/r0/thumbnail/";
 
 export function App(props: IProps) {
+    const { widget, spannerName, spannerId, sendSpannerMsg } = props;
     const [error, setError] = useState<string|null>(null);
     const [inProgress, setInProgress] = useState<boolean>(false);
     const [hasSpanner, setHasSpanner] = useState<{displayname: string, avatar?: string}|"loading"|null>("loading");
@@ -26,12 +27,12 @@ export function App(props: IProps) {
     const alterSpanner = (action: "take"|"drop") => {
         setError(null);
         setInProgress(true);
-        props.widget.sendStateEvent(StateEventType, props.spannerId, action === "take" ? { active: true }: {}).then(() => {
-            if (props.sendSpannerMsg) {
+        widget.sendStateEvent(StateEventType, spannerId, action === "take" ? { active: true }: {}).then(() => {
+            if (sendSpannerMsg) {
                 // Don't await / error
-                props.widget.sendRoomEvent("m.room.message", {
+                widget.sendRoomEvent("m.room.message", {
                     "msgtype": "m.emote",
-                    "body": `${action}s the ${props.spannerName} spanner`,
+                    "body": `${action}s the ${spannerName} spanner`,
                 })
             }
         }).catch(ex => {
@@ -70,13 +71,14 @@ export function App(props: IProps) {
 
     let content;
     if (hasSpanner === "loading") {
-        props.widget.on(`action:${WidgetApiToWidgetAction.SendEvent}`, (event) => {
+        widget.on(`action:${WidgetApiToWidgetAction.SendEvent}`, (event) => {
             event.preventDefault();
+            widget.transport.reply(event.detail, {} as IWidgetApiRequestEmptyData);
             const { data } = event.detail;
             processSpannerState(data);
         });
     
-        props.widget.readStateEvents(StateEventType, 1, props.spannerId).then(stateEvents => {
+        widget.readStateEvents(StateEventType, 1, spannerId).then(stateEvents => {
             const [event] = stateEvents as any[];
             processSpannerState(event);
         }).catch((err) => {
@@ -90,7 +92,7 @@ export function App(props: IProps) {
             <section className={`profileWrapper taken`}>
                 {hasSpanner.avatar && <img className='avatar' width="48" src={hasSpanner.avatar}/>}
                 <div className="spannerText">
-                    {hasSpanner.displayname} has {props.spannerName}
+                    {hasSpanner.displayname} has {spannerName}
                 </div>
             </section>
             <button onClick={dropSpanner} disabled={inProgress}>🫳 Drop</button>
@@ -99,7 +101,7 @@ export function App(props: IProps) {
         content = <>
             <section className={`profileWrapper dropped`}>
             <div className="spannerText">
-                Nobody has {props.spannerName}.
+                Nobody has {spannerName}.
             </div>
             </section>
             <button onClick={takeSpanner} disabled={inProgress}>🔧 Take</button>
