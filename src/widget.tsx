@@ -30,9 +30,10 @@ export function App(props: IProps) {
         widget.sendStateEvent(StateEventType, spannerId, action === "take" ? { active: true }: {}).then(() => {
             if (sendSpannerMsg) {
                 // Don't await / error
+                const hasSpannerMsg = typeof hasSpanner === "object" && hasSpanner ? `from ${hasSpanner.displayname}` : '';
                 widget.sendRoomEvent("m.room.message", {
                     "msgtype": "m.emote",
-                    "body": `${action}s the ${spannerName} spanner`,
+                    "body": `${action}s the ${spannerName} spanner from ${hasSpannerMsg}`,
                 })
             }
         }).catch(ex => {
