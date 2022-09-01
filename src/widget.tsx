@@ -9,7 +9,9 @@ interface IProps {
     widget: WidgetApi;
     spannerId: string;
     spannerName: string;
+    clientTheme: string;
     sendSpannerMsg: boolean;
+    docsLink: string|null;
 }
 
 const StateEventType = "uk.half-shot.spanner";
@@ -18,11 +20,11 @@ const StateEventType = "uk.half-shot.spanner";
 const ProfileLookupURL = "https://matrix.org/_matrix/client/r0/profile/";
 const ThumbnailURL = "https://matrix.org/_matrix/media/r0/thumbnail/";
 
-export function App(props: IProps) {
-    const { widget, spannerName, spannerId, sendSpannerMsg } = props;
+export function App({ widget, spannerName, spannerId, sendSpannerMsg, docsLink, clientTheme }: IProps) {
     const [error, setError] = useState<string|null>(null);
     const [inProgress, setInProgress] = useState<boolean>(false);
     const [hasSpanner, setHasSpanner] = useState<{displayname: string, avatar?: string}|"loading"|null>("loading");
+    const isDarkTheme = clientTheme.includes('dark');
 
     const alterSpanner = (action: "take"|"drop") => {
         setError(null);
@@ -30,7 +32,9 @@ export function App(props: IProps) {
         widget.sendStateEvent(StateEventType, spannerId, action === "take" ? { active: true }: {}).then(() => {
             if (sendSpannerMsg) {
                 // Don't await / error
-                const hasSpannerMsg = typeof hasSpanner === "object" && hasSpanner ? `from ${hasSpanner.displayname}` : '';
+                const hasSpannerMsg = action === "take"
+                    && typeof hasSpanner === "object"
+                    && hasSpanner ? `from ${hasSpanner.displayname}` : '';
                 widget.sendRoomEvent("m.room.message", {
                     "msgtype": "m.emote",
                     "body": `${action}s the ${spannerName} spanner from ${hasSpannerMsg}`,
@@ -109,10 +113,13 @@ export function App(props: IProps) {
         </>;
     }
 
-    return <>
+    return <div className={isDarkTheme ? 'darktheme' : 'normaltheme'}>
         {error && <p className="error">Error: {error}</p> }
         {content}
-    </>;
+        {docsLink && <p>
+            <a rel="noopener" target="_blank" href={docsLink}>Information about this spanner</a>
+        </p>}
+    </div>;
 }
 
 export function startWidget (root: HTMLElement, queryParams: URLSearchParams, widgetApi?: WidgetApi) {
@@ -121,6 +128,8 @@ export function startWidget (root: HTMLElement, queryParams: URLSearchParams, wi
         const spannerName = queryParams.get("spannerName") || "the Spanner";
         const sendSpannerMsg = queryParams.get("sendSpannerMsg") === "true";
         const widgetId = queryParams.get("widgetId");
+        const docsLink = queryParams.get("docsLink");
+        const clientTheme = queryParams.get("clientTheme") || "default";
 
         if (!widgetId) {
             render(<p className="error">Error: Widget must be opened from within a compatible Matrix client.</p>, root);
@@ -141,7 +150,7 @@ export function startWidget (root: HTMLElement, queryParams: URLSearchParams, wi
         render(<p>Requesting capabilities...</p>, root);
     
         api.on("ready", () => {
-            render(<App widget={api} spannerId={spannerId} spannerName={spannerName} sendSpannerMsg={sendSpannerMsg} />, root);
+            render(<App widget={api} spannerId={spannerId} spannerName={spannerName} sendSpannerMsg={sendSpannerMsg} docsLink={docsLink} clientTheme={clientTheme} />, root);
         });
     } else {
         console.error("Could not find the root element");
