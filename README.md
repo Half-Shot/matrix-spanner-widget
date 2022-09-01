@@ -38,9 +38,11 @@ E.g. to add a widget to an Element room you just need to say:
 
 All are optional.
 
-- `spannerName` The human readable name of your spanner. E.g. "staging%20environment". Defaults to `the Spanner`.
-- `spannerId` The state_key to use, this just needs to be unique. Defaults to `default`.
+- `clientTheme=$org.matrix.msc2873.client_theme` Match the widget theme to the theme of the client. (You almost certainly want this if you value your eyes).
+- `docsLink` A optional link to some documentation about this spanner. I.e. when is it okay to click it.
 - `sendSpannerMsg` Send a notice into the room when you take or drop the spanner. Defaults to false.
+- `spannerId` The state_key to use, this just needs to be unique. Defaults to `default`.
+- `spannerName` The human readable name of your spanner. E.g. "staging%20environment". Defaults to `the Spanner`.
 
 ### Contact
 
