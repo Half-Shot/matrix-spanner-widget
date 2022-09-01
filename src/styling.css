@@ -12,28 +12,32 @@ body {
   }
 }
 
+body.theme-dark {
+  background-color: #15191e;
+  color: white;
+}
+
 main {
   padding: 5vh 5vw;
   font-family: 'Open Sans' !important;
   text-align: center;
 }
 
-main > button {
+a {
+  color: #0dbd8b !important;
+}
+
+main > div > button {
   /* inspired by mx_AccessibleButton_kind_primary */
   color: white;
-  background-color: #0dbd8b;
+  background-color: #0dbd8b !important;
   font-weight: 600;
   padding: 7px 18px;
   text-align: center;
   border-radius: 8px;
 }
 
-main > button:hover {
-  color: white;
-  background-color: #0dbd8b;
-}
-
-main > button:disabled {
+main > div > button:disabled {
   background: var(--button-hover-back-color);
   border-color: var(--button-hover-border-color);
 }
