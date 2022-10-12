@@ -34,10 +34,10 @@ export function App({ widget, spannerName, spannerId, sendSpannerMsg, docsLink, 
                 // Don't await / error
                 const hasSpannerMsg = action === "take"
                     && typeof hasSpanner === "object"
-                    && hasSpanner ? `from ${hasSpanner.displayname}` : '';
+                    && hasSpanner ? ` from ${hasSpanner.displayname}` : '';
                 widget.sendRoomEvent("m.room.message", {
                     "msgtype": "m.emote",
-                    "body": `${action}s the ${spannerName} spanner from ${hasSpannerMsg}`,
+                    "body": `${action}s the ${spannerName} spanner${hasSpannerMsg}`,
                 })
             }
         }).catch(ex => {
