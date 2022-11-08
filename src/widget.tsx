@@ -1,6 +1,6 @@
 import { h, render, Fragment } from 'preact';
 import 'preact/devtools';
-import { useCallback, useState } from 'preact/hooks';
+import { useCallback, useState, useRef } from 'preact/hooks';
 import { MatrixCapabilities, WidgetApi, WidgetApiFromWidgetAction, WidgetApiToWidgetAction, IWidgetApiRequestEmptyData } from "matrix-widget-api";
 // Avoids snowpack crash
 // import "@fontsource/open-sans/files/open-sans-latin-400-normal.woff2";
@@ -23,6 +23,7 @@ const ThumbnailURL = "https://matrix.org/_matrix/media/r0/thumbnail/";
 export function App({ widget, spannerName, spannerId, sendSpannerMsg, docsLink, clientTheme }: IProps) {
     const [error, setError] = useState<string|null>(null);
     const [inProgress, setInProgress] = useState<boolean>(false);
+    const reasonRef = useRef<HTMLInputElement>(null);
     const [hasSpanner, setHasSpanner] = useState<{displayname: string, avatar?: string}|"loading"|null>("loading");
     const isDarkTheme = clientTheme.includes('dark');
 
@@ -35,10 +36,14 @@ export function App({ widget, spannerName, spannerId, sendSpannerMsg, docsLink, 
                 const hasSpannerMsg = action === "take"
                     && typeof hasSpanner === "object"
                     && hasSpanner ? ` from ${hasSpanner.displayname}` : '';
+                const reason = reasonRef.current?.value ? ` Reason: ${reasonRef.current.value}` : '';
                 widget.sendRoomEvent("m.room.message", {
                     "msgtype": "m.emote",
-                    "body": `${action}s the ${spannerName} spanner${hasSpannerMsg}`,
-                })
+                    "body": `${action}s the ${spannerName} spanner${hasSpannerMsg}.${reason}`,
+                });
+                if(reasonRef.current) {
+                    reasonRef.current.value = "";
+                }
             }
         }).catch(ex => {
             console.error(`Failed to ${action} spanner`, ex);
@@ -109,6 +114,7 @@ export function App({ widget, spannerName, spannerId, sendSpannerMsg, docsLink, 
                 Nobody has {spannerName}.
             </div>
             </section>
+            { sendSpannerMsg && <input ref={reasonRef} type='text' placeholder='Reason (optional)'/> }
             <button onClick={takeSpanner} disabled={inProgress}>🔧 Take</button>
         </>;
     }
