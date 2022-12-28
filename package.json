@@ -1,6 +1,6 @@
 {
   "name": "matrix-spanner-widget",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Grab a Spanner. Drop a Spanner. Ensure that your team respect the spanner with this fancy widget.",
   "main": "lib/index.js",
   "author": "Will Hunt <will@half-shot.uk>",
