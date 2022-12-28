@@ -5,6 +5,7 @@ This project is a [Matrix](https://matrix.org) widget for holding Spanners.
 
 ![Screenshot](https://chaotic.half-shot.uk/_matrix/media/r0/download/half-shot.uk/6f284fe34dfa6d7a0389cbb3f747a34539202117)
 
+
 ### Spanners?
 
 Spanners are a concept similar to a Mutex, where you want to (verbally) take control of a resource like a deployment
@@ -43,6 +44,13 @@ All are optional.
 - `sendSpannerMsg` Send a notice into the room when you take or drop the spanner. Defaults to false.
 - `spannerId` The state_key to use, this just needs to be unique. Defaults to `default`.
 - `spannerName` The human readable name of your spanner. E.g. "staging%20environment". Defaults to `the Spanner`.
+
+
+### Docker
+
+Docker images can be found for this project under `ghcr.io/half-shot/matrix-spanner-widget`.
+
+Running the image is as simple as `docker run --name spanner-widget -p 127.0.0.1:8080:8080 ghcr.io/half-shot/matrix-spanner-widget:1.0.0`
 
 ### Contact
 
