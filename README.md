@@ -33,7 +33,7 @@ half-shot.uk also hosts a instance of this widget, but uptime cannot be guarante
 
 E.g. to add a widget to an Element room you just need to say:
 
-`/addwidget https://half-shot.uk/spanner?spannerName=YourSpannerName&spannerId=SomeUniqueId&sendSpannerMsg=true|false`
+`/addwidget https://spanner.half-shot.uk/?spannerName=YourSpannerName&spannerId=SomeUniqueId&sendSpannerMsg=true|false`
 
 #### URL Parameters
 
