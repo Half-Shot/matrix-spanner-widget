@@ -4,6 +4,7 @@
     flex-direction: column;
     margin-left: auto;
     margin-right: auto;
+    text-align: center;
 
     > a {
         width: fit-content;

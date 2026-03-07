@@ -4,6 +4,7 @@ import { h } from "preact";
 import styles from "./SpannerBox.module.css";
 import { Avatar, Text } from "@vector-im/compound-web";
 import { WidgetApi } from "matrix-widget-api";
+import { SpannerProfileState } from "../types";
 
 interface IProps {
   widget: WidgetApi;
@@ -12,10 +13,8 @@ interface IProps {
 }
 
 export function SpannerState({ widget, spannerName, owner }: IProps) {
-  const [spannerProfile, setSpannerProfile] = useState<{
-    displayname: string;
-    avatar?: string;
-  } | null>(null);
+  const [spannerProfile, setSpannerProfile] =
+    useState<SpannerProfileState | null>(null);
 
   useEffect(() => {
     void (async () => {
@@ -30,17 +29,20 @@ export function SpannerState({ widget, spannerName, owner }: IProps) {
   if (owner) {
     return (
       <section className={styles.container}>
-        <div className={styles.profileBox}>
+        <p className={styles.profileBox}>
           <Avatar
             name={spannerProfile?.displayname}
-            src={spannerProfile?.avatar}
+            src={spannerProfile?.avatarUrl}
             id={owner?.sender}
             type="round"
           />
-          <Text size="lg">
-            {spannerProfile?.displayname ?? owner.sender} has {spannerName}
-          </Text>
-        </div>
+          <p>
+            <Text as="span" weight="bold">
+              {spannerProfile?.displayname ?? owner.sender}
+            </Text>{" "}
+            has {spannerName}
+          </p>
+        </p>
         {owner?.reason && (
           <Text size="lg" className={styles.reason}>
             Reason: {owner?.reason}

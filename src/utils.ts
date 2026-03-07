@@ -3,7 +3,7 @@ import {
   WidgetApi,
   WidgetApiToWidgetAction,
 } from "matrix-widget-api";
-import { SpannerState } from "./types";
+import { SpannerProfileState } from "./types";
 import { useEffect, useState } from "preact/hooks";
 
 export function onWidgetEventHook<T = IWidgetApiRequest>(
@@ -29,7 +29,7 @@ export function onWidgetEventHook<T = IWidgetApiRequest>(
 export async function calculateProfileFromSender(
   widget: WidgetApi,
   sender: string,
-): Promise<SpannerState> {
+): Promise<SpannerProfileState> {
   const [memberState] = await widget.readStateEvents(
     "m.room.member",
     1,
@@ -41,7 +41,16 @@ export async function calculateProfileFromSender(
   if (!profile.displayname) {
     return { displayname: sender };
   }
-  return { displayname: profile.displayname };
+  let avatarUrl: string | undefined;
+  if (profile.avatar_url) {
+    const { file } = await widget.downloadFile(profile.avatar_url);
+    if (file instanceof Blob) {
+      avatarUrl = URL.createObjectURL(file);
+    } else {
+      console.log("File not a blob, could not handle");
+    }
+  }
+  return { displayname: profile.displayname, avatarUrl };
   // if (event?.content.active) {
   //   fetch(new Request(`${ProfileLookupURL}${encodeURIComponent(event.sender)}`))
   //     .then((res) => {

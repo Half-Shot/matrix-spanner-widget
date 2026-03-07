@@ -1,4 +1,4 @@
-import { h, render } from "preact";
+import { h } from "preact";
 import "preact/devtools";
 import { useEffect, useState } from "preact/hooks";
 import {
@@ -8,7 +8,8 @@ import {
 } from "matrix-widget-api";
 import { SpannerState } from "./SpannerBox";
 import { SpannerStateEventType } from "../types";
-import { InlineSpinner, Link } from "@vector-im/compound-web";
+import { Button, InlineSpinner, Link } from "@vector-im/compound-web";
+import LinkIcon from "@vector-im/compound-design-tokens/assets/web/icons/link";
 import { onWidgetEventHook } from "../utils";
 import { SpannerControls } from "./SpannerControls";
 import styles from "./App.module.css";
@@ -101,10 +102,28 @@ export function App({
         <InlineSpinner />
       )}
       {docsLink && (
-        <Link rel="noopener" target="_blank" href={docsLink}>
+        <Button
+          as="a"
+          Icon={LinkIcon}
+          rel="noopener"
+          target="_blank"
+          kind="tertiary"
+          href={docsLink}
+        >
           Information about this spanner
-        </Link>
+        </Button>
       )}
+      <Button
+        as="a"
+        Icon={LinkIcon}
+        rel="noopener"
+        target="_blank"
+        kind="tertiary"
+        size="sm"
+        href="https://github.com/Half-Shot/matrix-spanner-widget"
+      >
+        matrix-spanner-widget
+      </Button>
     </div>
   );
 }

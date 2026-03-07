@@ -1,6 +1,6 @@
 import { h, render } from "preact";
 import "preact/devtools";
-import { WidgetApi } from "matrix-widget-api";
+import { MatrixCapabilities, WidgetApi } from "matrix-widget-api";
 import { App } from "./components/App";
 import { SpannerStateEventType } from "./types";
 
@@ -36,6 +36,7 @@ export function startWidget(
 
   api.requestCapabilityToReceiveState(SpannerStateEventType, spannerId);
   api.requestCapabilityToReceiveState("m.room.member");
+  api.requestCapability(MatrixCapabilities.MSC4039DownloadFile);
   api.requestCapabilityToSendState(SpannerStateEventType, spannerId);
   if (sendSpannerMsg) {
     api.requestCapabilityToSendEvent("m.room.message");
