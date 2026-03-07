@@ -50,7 +50,7 @@ All are optional.
 
 Docker images can be found for this project under `ghcr.io/half-shot/matrix-spanner-widget`.
 
-Running the image is as simple as `docker run --name spanner-widget -p 127.0.0.1:8080:8080 ghcr.io/half-shot/matrix-spanner-widget:1.0.0`
+Running the image is as simple as `docker run --name spanner-widget -p 127.0.0.1:8080:8080 ghcr.io/half-shot/matrix-spanner-widget:2.0.0`
 
 ### Contact
 
