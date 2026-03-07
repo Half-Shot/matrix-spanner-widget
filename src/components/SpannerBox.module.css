@@ -1,0 +1,18 @@
+.container {
+    display: flex;
+    gap: 2em;
+    flex-direction: column;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.profileBox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--cpd-space-2x);
+}
+
+.reason {
+    text-align: center;
+}

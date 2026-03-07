@@ -6,10 +6,11 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "@fontsource/open-sans": "^4.5.14",
+    "@fontsource/inter": "^5.2.8",
     "@preact/preset-vite": "^2.10.3",
+    "@vector-im/compound-design-tokens": "^6.10.1",
+    "@vector-im/compound-web": "^8.4.0",
     "matrix-widget-api": "^1.17.0",
-    "mini.css": "^3.0.1",
     "preact": "^10.28.4",
     "typescript": "^5.9.3",
     "vite": "^7.3.1"

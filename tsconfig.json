@@ -1,25 +1,24 @@
 {
-    "compilerOptions": {
-      "module": "commonjs",
-      "target": "es2019",
-      "moduleResolution": "node",
-      "jsx": "preserve",
-      "jsxFactory": "h",
-      "baseUrl": "./src",
-      /* paths - If you configure Snowpack import aliases, add them here. */
-      "paths": {},
-      /* noEmit - Snowpack builds (emits) files, not tsc. */
-      "noEmit": true,
-      /* Additional Options */
-      "strict": true,
-      "skipLibCheck": true,
-      "forceConsistentCasingInFileNames": true,
-      "resolveJsonModule": true,
-      "allowSyntheticDefaultImports": true,
-      "importsNotUsedAsValues": "error",
-      "experimentalDecorators": true,
-      "emitDecoratorMetadata": true,
-      "esModuleInterop": true
-    }
-  }
-  
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ESNext",
+    "moduleResolution": "node",
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment",
+    "baseUrl": "./src",
+    /* paths - If you configure Snowpack import aliases, add them here. */
+    "paths": {},
+    /* noEmit - Snowpack builds (emits) files, not tsc. */
+    "noEmit": true,
+    /* Additional Options */
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+  },
+}

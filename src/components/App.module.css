@@ -1,0 +1,12 @@
+.container {
+    display: flex;
+    gap: var(--cpd-space-4x);
+    flex-direction: column;
+    margin-left: auto;
+    margin-right: auto;
+
+    > a {
+        width: fit-content;
+        margin: auto;
+    }
+}
