@@ -1,9 +1,11 @@
-FROM node:18 AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
-COPY yarn.lock package.json /app/
-RUN yarn --frozen-lockfile && yarn cache clean
+COPY pnpm-lock.yaml package.json .
+RUN corepack enable
+RUN pnpm install --frozen-lockfile
 COPY . /app/
-RUN yarn build
+RUN pnpm build
 
-FROM nginxinc/nginx-unprivileged
+FROM nginxinc/nginx-unprivileged:1-alpine
+EXPOSE 8080
 COPY --from=builder /app/public /usr/share/nginx/html
