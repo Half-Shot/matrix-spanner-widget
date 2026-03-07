@@ -3,7 +3,7 @@ matrix-spanner-widget
 
 This project is a [Matrix](https://matrix.org) widget for holding Spanners.
 
-![Screenshot](https://chaotic.half-shot.uk/_matrix/media/r0/download/half-shot.uk/6f284fe34dfa6d7a0389cbb3f747a34539202117)
+![Screenshot](./screenshot.png)
 
 
 ### Spanners?
@@ -33,7 +33,7 @@ half-shot.uk also hosts a instance of this widget, but uptime cannot be guarante
 
 E.g. to add a widget to an Element room you just need to say:
 
-`/addwidget https://spanner.half-shot.uk/?spannerName=YourSpannerName&spannerId=SomeUniqueId&sendSpannerMsg=true|false`
+`/addwidget https://spanner.half-shot.uk/?waitForIframeLoad=false&spannerName=YourSpannerName&spannerId=SomeUniqueId&sendSpannerMsg=true|false`
 
 #### URL Parameters
 
